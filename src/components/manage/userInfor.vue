@@ -48,9 +48,7 @@
                     @click="handleDelete(scope.row.userid)">删除</el-button>
                 </template>
             </el-table-column>
-        </el-table>
-
-        
+        </el-table>  
 
         <!-- 分页 -->
         <div class="block">
@@ -141,6 +139,7 @@ export default {
             margin-bottom: 24px;
             padding: 6px 20px;
             background-color: #f8f8f8;
+            color: #8c8c8c;
         }
         .el-table{
             height: 440px;

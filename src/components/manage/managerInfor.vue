@@ -301,6 +301,7 @@ export default {
             margin-bottom: 24px;
             padding: 6px 20px;
             background-color: #f8f8f8;
+            color: #8c8c8c;        
         }
         .el-table{
             height: 440px;
