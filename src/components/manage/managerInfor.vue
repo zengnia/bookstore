@@ -46,11 +46,11 @@
                     <el-button
                     size="mini"
                     type="primary"
-                    @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                    @click="handleEdit(scope.row)">修改</el-button>
                     <el-button
                     size="mini"
                     type="danger"
-                    @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    @click="handleDelete(scope.row.userid)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -61,17 +61,29 @@
         :visible.sync="dialogVisible"
         width="30%"
         >
-            <el-form  label-width="80px" :model="addUpdateUser">
-                <el-form-item label="编号">
-                    <el-input v-model="addUpdateUser.id"></el-input>
+            <el-form  label-width="80px" :model="addUpdateUser" :rules="rules" ref="addUpdateUser">
+                <el-form-item label="编号" prop="userid">
+                    <el-input v-model="addUpdateUser.userid"></el-input>
                 </el-form-item>
-                <el-form-item label="管理员名">
-                    <el-input v-model="addUpdateUser.username"></el-input>
+                <el-form-item label="管理员名" prop="username">
+                    <el-input :disabled="managerName(addUpdateUser.userid)" v-model="addUpdateUser.username"></el-input>
+                </el-form-item>
+                <el-form-item label="昵称" prop="nickname">
+                    <el-input v-model="addUpdateUser.nickname"></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="addUpdateUser.email"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                    <el-input type="password" v-model="addUpdateUser.password"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" prop="pwdagain">
+                    <el-input type="password" v-model="addUpdateUser.pwdagain"></el-input>
                 </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                    <el-button @click="addOrUpdateCancel">取 消</el-button>
+                    <el-button type="primary" @click="addOrUpdateOk(addUpdateUser.userid)">确 定</el-button>
                 </span>
         </el-dialog>
 
@@ -95,13 +107,46 @@ import axios from "axios";
 import Qs from "qs"
 export default {
     data () {
+        var validatePass = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请再次输入密码'));
+            } else if (value !== this.addUpdateUser.password) {
+                callback(new Error('两次输入密码不一致!'));
+            } else {
+                callback();
+            }
+        };
         return {
             form: {
                 searchuser: ''
             },
             addUpdateUser: {
-                id: '',
-                username: ''
+                userid: '',
+                username: '',
+                nickname: '',
+                email: '',
+                password: ''
+            },
+            rules: {
+                username: [
+                    { required: true, message: '请输入管理员名称', trigger: 'blur' },
+                    { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: 'blur' }
+                ],
+                nickname: [
+                    { required: true, message: '请输入昵称', trigger: 'blur' },
+                    { min: 1, max: 12, message: '长度在 1 到 12 个字符', trigger: 'blur' }
+                ],
+                email: [
+                    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+                ],
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' },
+                    { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: 'blur' }
+                ],
+                pwdagain: [
+                    { validator: validatePass, required: true, trigger: 'blur' }
+                ]
             },
             tableData: [],
             currentPage: 5,
@@ -122,14 +167,119 @@ export default {
                 // console.log(resp.data);
             })
         },
+        // 管理员名的禁用
+        managerName(id) {
+            if(id){
+                return true;
+            }else{
+                return false;
+            }
+        },
+        // 打开新增管理员弹框
         addUser() {
-            this.dialogVisible = true;                        
+            this.addUpdateUser = {};
+            this.dialogVisible = true;   
         },
-        handleEdit() {
-            this.dialogVisible = true;            
+        // 打开修改管理员弹框
+        handleEdit(row) {
+            this.dialogVisible = true;
+            axios({
+                url: "/api/managerSearch.php",
+                method: "POST",
+                data: Qs.stringify({
+                    userid: row.userid
+                })
+            }).then(resp => {
+                this.addUpdateUser = resp.data;
+                this.addUpdateUser.pwdagain = resp.data.password;
+            })
         },
-        handleDelete() {
-
+        // 取消新增或修改
+        addOrUpdateCancel() {
+            this.dialogVisible = false;
+            this.$refs.addUpdateUser.resetFields();
+        },
+        // 确认新增或修改
+        addOrUpdateOk(id) {
+            if(id){
+                // 修改
+                this.$refs.addUpdateUser.validate((valid) => {
+                    if (valid) {
+                        axios({
+                            url: "/api/managerUpdate.php",
+                            method: "POST",
+                            data: Qs.stringify({
+                                userid: this.addUpdateUser.userid,
+                                nickname: this.addUpdateUser.nickname,
+                                email: this.addUpdateUser.email,
+                                password: this.addUpdateUser.password
+                            })
+                        }).then(resp => {
+                            if (resp.data === "suc") {
+                                this.$message('修改成功！');
+                                this.dialogVisible = false;
+                                this.$refs.addUpdateUser.resetFields();
+                                this.managerList();
+                            }
+                        })
+                        
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            }else{
+                // 新增
+                this.$refs.addUpdateUser.validate((valid) => {
+                    if (valid) {
+                        axios({
+                            url: "/api/managerAdd.php",
+                            method: "POST",
+                            data: Qs.stringify({
+                                username: this.addUpdateUser.username,
+                                nickname: this.addUpdateUser.nickname,
+                                email: this.addUpdateUser.email,
+                                password: this.addUpdateUser.password,
+                            })
+                        }).then(resp => {
+                            // console.log(resp.data);
+                            if(resp.data === 'suc') {
+                                this.dialogVisible = false;
+                                this.$refs.addUpdateUser.resetFields();
+                                this.managerList();
+                            }
+                        })
+                    } else {
+                        return false;
+                    }
+                });
+            }
+            
+            
+        },
+        // 删除管理员
+        handleDelete(id) {
+            this.$confirm('是否继确认删除该用户?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+                }).then(() => {
+                    axios({
+                        url: "/api/userDel.php",
+                        method: "POST",
+                        data: Qs.stringify({
+                        userid: id
+                        })
+                    }).then(resp => {
+                        if (resp.data == 'suc') {
+                            this.managerList();                            
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                        }
+                    })
+                }).catch(() => {});
         },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`);
