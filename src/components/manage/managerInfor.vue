@@ -62,7 +62,7 @@
         width="30%"
         >
             <el-form  label-width="80px" :model="addUpdateUser" :rules="rules" ref="addUpdateUser">
-                <el-form-item label="编号" prop="userid">
+                <el-form-item label="编号" prop="userid" v-show="false">
                     <el-input v-model="addUpdateUser.userid"></el-input>
                 </el-form-item>
                 <el-form-item label="管理员名" prop="username">
@@ -254,12 +254,10 @@ export default {
                     }
                 });
             }
-            
-            
         },
         // 删除管理员
         handleDelete(id) {
-            this.$confirm('是否继确认删除该用户?', '提示', {
+            this.$confirm('是否确认删除该用户?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'

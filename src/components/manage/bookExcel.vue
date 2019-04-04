@@ -1,7 +1,30 @@
 <template>
     <div class="bookexcel">
-        <div id="myEchart" :style="{width: '400px', height: '300px'}"></div>
-        <div id="myEchart1" :style="{width: '400px', height: '300px'}"></div>
+        <el-row :gutter="20">
+            <el-col :span="12">
+                <el-card class="box-card">
+                    <div slot="header" class="clearfix">
+                        <span>书籍销售情况</span>
+                    </div>
+                    <div class="text item">
+                        <div id="myEchart" :style="{width: '100%', height: '300px'}"></div>
+                    </div>
+                </el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card class="box-card">
+                    <div slot="header" class="clearfix">
+                        <span>书籍评价情况</span>
+                    </div>
+                    <div class="text item">
+                        <div id="myEchart1" :style="{width: '100%', height: '300px'}"></div>
+                    </div>
+                </el-card>
+            </el-col>
+        </el-row>
+
+        
+
     </div>
 </template>
 
@@ -22,10 +45,17 @@ export default {
             let myChart = this.$echarts.init(document.getElementById('myEchart'))
             // 绘制图表
             myChart.setOption({
-                title: { text: '书籍出库情况' },
                 tooltip: {},
+                dataZoom: [
+                    {   // 这个dataZoom组件，默认控制x轴。
+                        type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                        start: 10,      // 左边在 10% 的位置。
+                        end: 70         // 右边在 70% 的位置。
+                    }
+                ],
+               
                 xAxis: {
-                    data: ["百年孤独","白夜行","莎士比亚戏剧选","小王子","厚黑学"]
+                    data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
                 },
                 yAxis: {},
                 series: [{
@@ -38,13 +68,11 @@ export default {
         drawLine1() {
             let myChart1 = this.$echarts.init(document.getElementById('myEchart1'))
             myChart1.setOption({
-                title: { text: '书籍入库情况' },                
                 series : [
                     {
                         roseType: 'angle',
-                        name: '访问来源',
                         type: 'pie',
-                        radius: '70%',
+                        radius: '60%',
                         data:[
                             {value:235, name:'百年孤独'},
                             {value:274, name:'莎士比亚戏剧选'},
@@ -63,9 +91,20 @@ export default {
 
 <style lang="less" scoped>
 .bookexcel{
+    width: 100%;
+    height: 500px;
+    overflow: auto;
     display: flex;
     #myEchart{
         margin-right: 80px;
+        height: 100% !important;
+    }
+    .el-row{
+        width: 100%;
+    }
+    .box-card{
+        width: 100%;
+        height: 380px;
     }
 }
 </style>

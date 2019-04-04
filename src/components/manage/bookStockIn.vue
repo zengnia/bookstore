@@ -5,6 +5,9 @@
             <el-form-item label="书籍名称" prop="bookname" size="small">
                 <el-input v-model="book.bookname" style="width: 20%"></el-input>
             </el-form-item>
+            <el-form-item label="书籍作者" prop="author" size="small">
+                <el-input v-model="book.author" style="width: 20%"></el-input>
+            </el-form-item>
             <el-form-item label="入库数量" prop="num" size="small">
                 <el-input-number v-model="book.num" :min="1"></el-input-number>
             </el-form-item>
@@ -26,7 +29,7 @@
                     v-for="item in kinds"
                     :key="item.value"
                     :label="item.value"
-                    :value="item.id">
+                    :value="item.value">
                     </el-option>
                 </el-select>
             </el-form-item>
@@ -38,18 +41,20 @@
 </template>
 
 <script>
+import axios from "axios";
+import Qs from "qs"
 export default {
     data() {
         return {
             book: {
                 bookname: '',
                 num: 1,
-                preprice: 12.5,
-                date: '2019-03-21',
-                username: '张三',
+                author: '',
+                preprice: 0,
+                date: '',
+                username: '',
                 order: '',
-                kind: '',
-                privide: '新华文轩'
+                kind: ''
             },
             kinds: [
                 {id: 0, value: '人文'},
@@ -68,10 +73,29 @@ export default {
                 url: "/api/bookStockIn.php",
                 method: "POST",
                 data: Qs.stringify({
-                  username: this.form.searchuser
+                  bookname: this.book.bookname,
+                  booknum: this.book.num,
+                  author: this.book.author,
+                  preprice: this.book.preprice,
+                  date: this.book.date,
+                  user: this.book.username,
+                  ordernum: this.book.order,
+                  bookkind: this.book.kind
                 })
             }).then(resp => {
-                this.tableData = resp.data;
+                this.$confirm('是否继续入库书籍?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'primary'
+                    }).then(() => {
+                        this.getOrder();
+                        this.book.bookname = '';
+                        this.book.num = 1;
+                        this.book.preprice = 0;
+                        this.book.author = '';
+                    }).catch(() => {
+                        this.$router.push({path: '/manage/bookStockOut'});
+                    });
                 // console.log(resp.data);
             })
         },
