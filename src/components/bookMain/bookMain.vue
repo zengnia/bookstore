@@ -20,7 +20,7 @@
                         <el-collapse-item :title=b.titlename :name=b.num v-for="(b, index) in books" :key="index">
                             <div class="imgprice">
                                 <div>
-                                    <img :src=b.image alt="">                            
+                                    <img :src=b.image>                            
                                 </div>
                                 <div>
                                     <span>原价：￥{{b.price}} </span>
@@ -33,10 +33,24 @@
                 </el-col>
             </el-row>
         </div>
-
         <!-- 书籍模块 -->
         <book-module></book-module>
-        
+        <!-- 底部 -->
+        <div class="footer">
+            <div class="footerCont">
+                <ul>
+                    <li>关于我们</li>
+                    <li>联系我们</li>
+                    <li>加入我们</li>
+                    <li>合作伙伴</li>
+                    <li>
+                        <img src="../../assets/images/1554716288.png" alt="">
+                    </li>
+                </ul>
+                <p>四川师范大学计算机科学学院2015级4班曾妮&emsp;指导老师：韩鸿宇</p>
+                <p>完成时间2018年4月10日</p>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -55,7 +69,7 @@ export default {
                 {
                     titlename: '百年孤独',
                     num: '1',
-                    image: require('../../assets/images/book1.jpg'),
+                    image: require('../../assets/images/bngd.jpg'),
                     price: 48,
                     countprice: 36,
                     introduce: '这是一条书籍简要介绍文字。' 
@@ -63,7 +77,7 @@ export default {
                 {
                     titlename: '大数据时代',
                     num: '2',
-                    image: require('../../assets/images/book2.jpg'),
+                    image: require('../../assets/images/dsjsd.jpg'),
                     price: 36,
                     countprice: 24,
                     introduce: '这是一条书籍简要介绍文字。'                      
@@ -71,7 +85,7 @@ export default {
                 {
                     titlename: '三体',
                     num: '3',
-                    image: require('../../assets/images/book3.jpg'),
+                    image: require('../../assets/images/st.jpg'),
                     price: 98,
                     countprice: 76,
                     introduce: '这是一条书籍简要介绍文字。'                     
@@ -79,7 +93,7 @@ export default {
                 {
                     titlename: '白夜行',
                     num: '4',
-                    image: require('../../assets/images/book4.jpg'),
+                    image: require('../../assets/images/byx.jpg'),
                     price: 48,
                     countprice: 36,
                     introduce: '这是一条书籍简要介绍文字。'                      
@@ -137,7 +151,37 @@ export default {
                 }
             }
             
-       }
-       
+        }
+        .footer{
+            height: 200px;
+            background-color: #f0f1f4;
+            margin-top: 60px;
+            display: flex;
+            justify-content: center;
+            .footerCont{
+                width: 800px;
+                min-width: 800px;
+                ul{
+                    list-style: none;
+                    text-decoration: none;
+                    margin-top: 30px;
+                    display: flex;
+                    justify-content: space-around;
+                    li{
+                        color: cadetblue;
+                        cursor: pointer;
+                        img{
+                            width: 94px;
+                        }
+                    }
+                }
+                p{
+                    text-align: center;
+                    color: cadetblue;
+                    font-size: 14px;
+                    margin-top: 10px;
+                }
+            }
+        }
     }
 </style>

@@ -72,6 +72,16 @@
                 <el-form-item label="书籍名称" prop="bookname" size="small">
                     <el-input disabled v-model="book.bookname"></el-input>
                 </el-form-item>
+                <el-form-item label="书籍图片" prop="bookimg" size="small">
+                    <el-upload
+                    action="/api/bookImg.php"
+                    list-type="picture"
+                    :on-success="handleUpload"
+                    :on-preview="handlePictureCardPreview"
+                    :on-remove="handleRemove">
+                    <span>点击上传</span>
+                    </el-upload>
+                </el-form-item>
                 <el-form-item label="出库数量" prop="num" size="small">
                     <el-input-number v-model="book.num" :max="this.book.booknum"></el-input-number>
                 </el-form-item>
@@ -114,6 +124,7 @@ export default {
             book: {
                 bookname: '',
                 num: 1,
+                bookimg: '',
                 author: '',
                 ordernum: '',
                 booknum: 0,
@@ -136,7 +147,7 @@ export default {
                 })
             }).then(resp => {
                 this.tableData = resp.data;
-                console.log(resp.data);
+                console.log(resp);
             })
         },
         // 上架弹框        
@@ -156,6 +167,7 @@ export default {
                 data: Qs.stringify({
                   outnum: this.book.num,
                   ordernum: this.book.ordernum,
+                  bookimg: this.book.bookimg,
                   price: this.book.price,
                   intro: this.book.intro
                 })
@@ -165,13 +177,27 @@ export default {
                     this.bookList();
                     this.$message('上架成功');              
                 }
-                // console.log(resp.data);
+                console.log(resp.data);
             })
             this.dialogVisible = false;
+            // console.log(this.book.bookimg);
         },
         // 取消上架书籍
         stockOutCancel() {
             this.dialogVisible = false;            
+        },
+        // 文件移出
+        handleRemove(file, fileList) {
+            console.log(file, fileList);
+        },
+        // 已上传的文件
+        handlePictureCardPreview(file) {
+            console.log(file);
+        },
+        // 上传成功
+        handleUpload(resp, file) {
+            // console.log(file.name);
+            this.book.bookimg = file.name;
         }
     },
     mounted() {

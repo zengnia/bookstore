@@ -2,8 +2,7 @@
     <div class="bookDetail">
         <div class="detail-cont">
             <div class="booksale">
-                <div class="bookImg">
-                
+                <div class="bookImg">    
                 </div>
                 <div class="bookIntro">
                     <h4>百年孤独</h4>

@@ -36,7 +36,7 @@
             </el-table-column>
             <el-table-column label="剩余数量" width="100">
                 <template slot-scope="scope">
-                    {{ scope.row.booknum - scope.row.outnum - scope.row.saleval }}
+                    {{ scope.row.booknum - scope.row.saleval }}
                 </template>
             </el-table-column>
             <el-table-column label="书籍销量">
