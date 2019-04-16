@@ -10,7 +10,7 @@
             <div class="modulecontent">
                 <el-row>
                     <el-col :span="4" v-for="(book, index) in books" :key="index">
-                        <div @click="bookDetail">
+                        <div @click="bookDetail(book)">
                             <div class="bookintro">
                                 <img :src="require('../../../../bookstoreServer/bookImg/'+book.bookimg)" alt="">
                             </div>
@@ -37,7 +37,7 @@
             <div class="modulecontent">
                 <el-row>
                     <el-col :span="4" v-for="(book, index) in goodbooks" :key="index">
-                        <div @click="bookDetail">
+                        <div @click="bookDetail(book)">
                             <div class="bookintro">
                                 <img :src="require('../../../../bookstoreServer/bookImg/'+book.bookimg)" alt="">
                             </div>
@@ -64,7 +64,7 @@
             <div class="modulecontent">
                 <el-row>
                     <el-col :span="4" v-for="(book, index) in newbooks" :key="index">
-                        <div @click="bookDetail">
+                        <div @click="bookDetail(book)">
                             <div class="bookintro">
                                 <img :src="require('../../../../bookstoreServer/bookImg/'+book.bookimg)" alt="">
                             </div>
@@ -91,7 +91,7 @@
             <div class="modulecontent">
                 <el-row>
                     <el-col :span="4" v-for="(book, index) in groombooks" :key="index">
-                        <div @click="bookDetail">
+                        <div @click="bookDetail(book)">
                             <div class="bookintro">
                                 <img :src="require('../../../../bookstoreServer/bookImg/'+book.bookimg)" alt="">
                             </div>
@@ -115,6 +115,7 @@
 </template>
 
 <script>
+import Bus from "../../assets/js/Bus.js";
 import axios from "axios";
 import Qs from "qs"
 export default {
@@ -136,8 +137,20 @@ export default {
     },
     methods: {
         // 点击查看书籍详情
-        bookDetail() {
-            this.$router.push('/bookDetail');
+        bookDetail(book) {
+            // Bus.$emit('book', book);
+            this.$router.push({
+                name: 'bookDetail',
+                params: {
+                    bookname: book.bookname,
+                    price: book.price,
+                    bookimg: book.bookimg,
+                    intro: book.intro,
+                    outnum: book.outnum,
+                    salenum: book.salenum,
+                    author: book.author
+                }
+            });
         },
         // 热门书籍渲染
         hotBookList() {

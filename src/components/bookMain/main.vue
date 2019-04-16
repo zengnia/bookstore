@@ -31,10 +31,12 @@
         </div>
         <!-- 首页内容 -->
         <router-view></router-view>
+        <Footer></Footer>
     </div>      
 </template>
 
 <script>
+import Footer from "./footer";
 export default {
     data() {
         return {
@@ -87,6 +89,7 @@ export default {
         this.isLogin();
     },
     components: {
+        Footer
     }
 }
 </script>
