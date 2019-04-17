@@ -11,11 +11,11 @@
                     <p>作品简介： {{bookdetail.intro}}</p>
                     <p class="price">价格： <span>￥{{bookdetail.price}}</span></p>
                     <p>数量： 
-                        <el-input-number v-model="bookdetail.booknum" size="mini" :min="bookdetail.outnum - bookdetail.salenum" label="数量"></el-input-number>
+                        <el-input-number v-model="bookdetail.booknum" size="mini" :min="1" label="数量"></el-input-number>
                     </p>
                     <p>库存： <span>{{bookdetail.outnum - bookdetail.saleval}}</span></p>
                     <el-button type="primary" size="large" @click="buycar">加入购物车</el-button>
-                    <el-button type="warning" size="large">收藏</el-button>
+                    <el-button type="warning" size="large" @click="collection">收藏</el-button>
                 </div>
             </div>
         </div>
@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import axios from "axios";
+import Qs from "qs";
 export default {
     data() {
         return {
@@ -87,7 +89,50 @@ export default {
         },
         // 加入购物车
         buycar() {
-            
+            // console.log(this.bookdetail, this.$store.state.currentUser);
+            if (this.$store.state.currentUser !== null) {
+                axios({
+                    url: "/api/addBuycar.php",
+                    method: "POST",
+                    data: Qs.stringify({
+                    bookname: this.bookdetail.bookname,
+                    price: this.bookdetail.price,
+                    username: this.$store.state.currentUser,
+                    buynum: this.bookdetail.booknum,
+                    buystatus: 1
+                })
+                }).then(resp => {
+                    console.log(resp.data);
+                    if(resp.data == 'suc') {
+                        this.$message('添加成功');
+                    }
+                })
+            } else {
+                this.$message('请先登录');
+            }
+        },
+        // 收藏
+        collection() {
+            if (this.$store.state.currentUser !== null) {
+                axios({
+                    url: "/api/addBuycar.php",
+                    method: "POST",
+                    data: Qs.stringify({
+                    bookname: this.bookdetail.bookname,
+                    price: this.bookdetail.price,
+                    username: this.$store.state.currentUser,
+                    buynum: this.bookdetail.booknum,
+                    buystatus: 2
+                })
+                }).then(resp => {
+                    // console.log(resp.data);
+                    if(resp.data == 'suc') {
+                        this.$message('添加成功');
+                    }
+                })
+            } else {
+                this.$message('请先登录');                
+            }
         }
     },
     mounted() {

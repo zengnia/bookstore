@@ -6,17 +6,17 @@
                     <el-form  label-width="80px" :model="userinfo">
                         <el-col :span="12">
                             <el-form-item label="用户名" size="small">
-                                <el-input v-model="userinfo.username"></el-input>
+                                <el-input disabled v-model="userinfo.username"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="昵称" size="small">
-                                <el-input v-model="userinfo.nickname"></el-input>
+                                <el-input disabled v-model="userinfo.nickname"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="地址" size="small">
-                                <el-input v-model="userinfo.address"></el-input>
+                                <el-input disabled v-model="userinfo.address"></el-input>                                
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
@@ -50,9 +50,9 @@
                                     {{ scope.row.price }}
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="booknum" label="书籍数量">
+                            <el-table-column prop="buynum" label="书籍数量">
                                 <template slot-scope="scope">
-                                    {{ scope.row.booknum }}
+                                    {{ scope.row.buynum }}
                                 </template>
                             </el-table-column>
                             <el-table-column label="操作">
@@ -76,7 +76,7 @@
                     </el-tab-pane>
                     <el-tab-pane label="我的收藏">
                         <el-table
-                        :data="buycar"
+                        :data="collection"
                         style="width: 100%">
                             <el-table-column prop="bookname" label="书籍名称">
                                 <template slot-scope="scope">
@@ -88,9 +88,9 @@
                                     {{ scope.row.price }}
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="booknum" label="书籍数量">
+                            <el-table-column prop="buynum" label="书籍数量">
                                 <template slot-scope="scope">
-                                    {{ scope.row.booknum }}
+                                    {{ scope.row.buynum }}
                                 </template>
                             </el-table-column>
                             <el-table-column label="操作">
@@ -104,8 +104,8 @@
                         </el-table>
                     </el-tab-pane>
                     <el-tab-pane label="购买记录">
-                                                <el-table
-                        :data="buycar"
+                        <el-table
+                        :data="buyrecord"
                         style="width: 100%">
                             <el-table-column prop="bookname" label="书籍名称">
                                 <template slot-scope="scope">
@@ -117,9 +117,9 @@
                                     {{ scope.row.price }}
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="booknum" label="书籍数量">
+                            <el-table-column prop="buynum" label="书籍数量">
                                 <template slot-scope="scope">
-                                    {{ scope.row.booknum }}
+                                    {{ scope.row.buynum }}
                                 </template>
                             </el-table-column>
                             <el-table-column label="操作">
@@ -141,7 +141,7 @@
             width="30%">
                 <el-form :model="userinfo" :rules="rules" ref="userinfo" label-width="100px">
                     <el-form-item prop="user" label="用户名">
-                        <el-input placeholder="请输入用户名" v-model="userinfo.user" clearable>
+                        <el-input placeholder="请输入用户名" disabled v-model="userinfo.username" clearable>
                         </el-input>
                     </el-form-item>
                     <el-form-item prop="nickname" label="昵称">
@@ -167,6 +167,9 @@
 </template>
 
 <script>
+import axios from "axios";
+import Qs from "qs";
+import getCurrentCityName from "../../assets/js/Address.js";
 export default {
     data() {
         var validatePass = (rule, value, callback) => {
@@ -182,9 +185,12 @@ export default {
             userinfo: {
                 username: '',
                 nickname: '',
+                pwd: '',
                 address: ''
             },
             buycar: [],
+            collection: [],
+            buyrecord: [],
             multipleSelection: [],
             dialogVisible: false,
             rules: {
@@ -204,25 +210,47 @@ export default {
                     { validator: validatePass, required: true, trigger: 'blur' }
                 ]
             },
-            userinfo: {
-                user: '',
-                nickname: '',
-                pwd: ''
-            }
         }
     },
     methods: {
+        // 获取用户信息
+        getUser() {
+            axios({
+                url: "/api/userSearch.php",
+                method: "POST",
+                data: Qs.stringify({
+                    username: this.$store.state.currentUser
+                })
+            }).then(resp => {
+                this.userinfo.username = resp.data[0].username;
+                this.userinfo.nickname = resp.data[0].nickname;
+                // this.userinfo.pwd = resp.data[0].password;
+            })
+        },
         // 打开修改用户信息弹窗
         changeInfo() {
             this.dialogVisible = true;
         },
         // 取消修改用户信息
         changeCancel() {
-
+            this.dialogVisible = false;
         },
         // 确认修改用户信息
         changeOk() {
-
+            axios({
+                url: "/api/userUpdate.php",
+                method: "POST",
+                data: Qs.stringify({
+                    username: this.$store.state.currentUser,
+                    nickname: this.userinfo.nickname,
+                    password: this.userinfo.pwd
+                })
+            }).then(resp => {
+                if (resp.data == 'suc') {
+                    this.$message('修改成功');
+                    this.dialogVisible = false;
+                }
+            })
         },
         // 购买商品
         handleEdit(row) {
@@ -234,13 +262,88 @@ export default {
         },
         // 购买全部
         buyAll() {
-
+            console.log(this.multipleSelection);
         },
-        
+        // 选择要购买的商品
         handleSelectionChange(val) {
             this.multipleSelection = val;
-        }
+            // console.log(this.multipleSelection);
+        },
+        // 购物车
+        buycarSearch() {
+            axios({
+                url: "/api/buycarSearch.php",
+                method: "POST",
+                data: Qs.stringify({
+                    username: this.$store.state.currentUser,
+                    buystatus: 1
+                })
+            }).then(resp => {
+                this.buycar = resp.data;
+            })
+        },
+        // 收藏夹
+        collectionSearch() {
+            axios({
+                url: "/api/buycarSearch.php",
+                method: "POST",
+                data: Qs.stringify({
+                    username: this.$store.state.currentUser,
+                    buystatus: 2
+                })
+            }).then(resp => {
+                this.collection = resp.data;
+            })
+        },
+        // 购买记录
+        buyrecordSearch() {
+            axios({
+                url: "/api/buycarSearch.php",
+                method: "POST",
+                data: Qs.stringify({
+                    username: this.$store.state.currentUser,
+                    buystatus: 3
+                })
+            }).then(resp => {
+                this.buyrecord = resp.data;
+            })
+        },
+        getCurrentCity() {
+            getCurrentCityName().then((city) => {
+              console.log(city);  //顺利的话能在控制台打印出当前城市
+            })
+        },
+
+        addressDetail(){ //获取地理位置 
+            var self = this; 
+            //全局的this在方法中不能使用，需要重新定义一下
+            var geolocation = new BMap.Geolocation(); 
+            //调用百度地图api 中的获取当前位置接口
+            geolocation.getCurrentPosition(function(r){ if(this.getStatus() == BMAP_STATUS_SUCCESS){ 
+                //获取当前位置经纬度
+                var myGeo = new BMap.Geocoder();
+                myGeo.getLocation(new BMap.Point(r.point.lng, r.point.lat), function(result){ 
+                    if (result){
+                    //根据当前位置经纬度解析成地址
+                        // self.ADDRESS_DETAIL(result.addressComponents.district+result.addressComponents.street); //在vuex中存入区、街道地址信息。其他地方需要使用直接调用
+                        self.geohash = result.point.lat+","+result.point.lng;
+                        self.latitude = result.point.lat; self.longitude = result.point.lng;
+                        self.userinfo.address = result.addressComponents.province+result.addressComponents.city+result.addressComponents.district+result.addressComponents.street
+                    }
+                });
+                } 
+            });
+        },
         
+    },
+    mounted() {
+        this.buycarSearch();
+        this.collectionSearch();
+        this.getUser();
+
+        // 百度地图API功能
+         this.addressDetail();
+        // this.getCurrentCity();
     }
 }
 </script>
