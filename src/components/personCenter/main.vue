@@ -215,17 +215,21 @@ export default {
     methods: {
         // 获取用户信息
         getUser() {
-            axios({
-                url: "/api/userSearch.php",
-                method: "POST",
-                data: Qs.stringify({
-                    username: this.$store.state.currentUser
+            // console.log(this.$store.state.currentUser);
+            if (this.$store.state.currentUser) {
+                axios({
+                    url: "/api/userSearch.php",
+                    method: "POST",
+                    data: Qs.stringify({
+                        nickname: this.$store.state.currentUser
+                    })
+                }).then(resp => {
+                    console.log(resp.data);
+                    this.userinfo.username = resp.data.username;
+                    this.userinfo.nickname = resp.data.nickname;
                 })
-            }).then(resp => {
-                this.userinfo.username = resp.data[0].username;
-                this.userinfo.nickname = resp.data[0].nickname;
-                // this.userinfo.pwd = resp.data[0].password;
-            })
+            }
+            
         },
         // 打开修改用户信息弹窗
         changeInfo() {
@@ -237,28 +241,83 @@ export default {
         },
         // 确认修改用户信息
         changeOk() {
-            axios({
-                url: "/api/userUpdate.php",
-                method: "POST",
-                data: Qs.stringify({
-                    username: this.$store.state.currentUser,
-                    nickname: this.userinfo.nickname,
-                    password: this.userinfo.pwd
-                })
-            }).then(resp => {
-                if (resp.data == 'suc') {
-                    this.$message('修改成功');
-                    this.dialogVisible = false;
-                }
-            })
+            this.$confirm('是否修改用户信息?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+                }).then(() => {
+                    axios({
+                        url: "/api/userUpdate.php",
+                        method: "POST",
+                        data: Qs.stringify({
+                            username: this.$store.state.currentUser,
+                            nickname: this.userinfo.nickname,
+                            password: this.userinfo.pwd
+                        })
+                    }).then(resp => {
+                        if (resp.data == 'suc') {
+                            this.$message('修改成功');
+                            this.getUser();
+                            this.dialogVisible = false;
+                        }
+                    })        
+                }).catch(() => {
+            });
+            
         },
         // 购买商品
         handleEdit(row) {
-
+            console.log(row);
+            this.$confirm('是否购买该商品', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+                }).then(() => {
+                    axios({
+                        url: "/api/buybookAdd.php",
+                        method: "POST",
+                        data: Qs.stringify({
+                            id: row.id,
+                            bookname: row.bookname,
+                            buynum: row.buynum
+                        })
+                    }).then(resp => {
+                        // console.log(resp.data);
+                        if (resp.data == 'suc') {
+                            this.buycarSearch();
+                            this.buyrecordSearch();
+                            this.$message('购买成功');
+                        }
+                    })
+                }).catch(() => {       
+            });
+            
         },
         // 清除商品
         handleDelete(row) {
-
+            console.log(row);
+            this.$confirm('是否删除该商品', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+                }).then(() => {
+                    axios({
+                        url: "/api/buybookDel.php",
+                        method: "POST",
+                        data: Qs.stringify({
+                            id: row.id
+                        })
+                    }).then(resp => {
+                        if (resp.data == 'suc') {
+                            this.$message('删除成功');
+                            this.buycarSearch();
+                            this.collectionSearch();
+                            this.buyrecordSearch();
+                        }
+                    })   
+                }).catch(() => {
+            });
+            
         },
         // 购买全部
         buyAll() {
@@ -310,7 +369,7 @@ export default {
         },
         getCurrentCity() {
             getCurrentCityName().then((city) => {
-              console.log(city);  //顺利的话能在控制台打印出当前城市
+          //顺利的话能在控制台打印出当前城市
             })
         },
 
@@ -339,6 +398,7 @@ export default {
     mounted() {
         this.buycarSearch();
         this.collectionSearch();
+        this.buyrecordSearch();
         this.getUser();
 
         // 百度地图API功能

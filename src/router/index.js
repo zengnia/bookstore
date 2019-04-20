@@ -22,6 +22,8 @@ import userInfor from '../components/manage/userInfor.vue'
 import managerInfor from '../components/manage/managerInfor.vue'
 // 用户管理-用户新增修改
 import addOrUpdataUser from '../components/manage/addOrUpdateUser.vue'
+// 用户管理-用户购书
+import bookBuy from '../components/manage/bookbuy.vue'
 // 书籍管理-书籍查询
 import bookSearch from '../components/manage/bookSearch.vue'
 // 书籍管理-书籍入库
@@ -102,6 +104,11 @@ let routerConfig = {
             name: 'bookexcel',
             component: bookExcel
           },
+          {
+            path: 'bookbuy',
+            name: 'bookbuy',
+            component: bookBuy
+          }
           
         ]
       }

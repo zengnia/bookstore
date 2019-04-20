@@ -32,7 +32,7 @@
                 v-model="bookscore"
                 show-text>
                 </el-rate>
-                <el-button type="primary" size="small">发表</el-button>
+                <el-button type="primary" size="small" @click="publish">发表</el-button>
             </div>
             <div class="moreremark">
                 <h3>更多评价</h3>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="remarkright">
                     <span>{{remark.remarkdate}}</span>
-                    <p>满意度：<span class="degree">{{remark.degree}}</span></p>                
+                    <p>满意度：<span class="bookscore">{{remark.bookscore}}</span></p>                
                 </div>
             </div>
         </div>
@@ -69,9 +69,7 @@ export default {
                 bookimg: ''
             },
             remarks: [
-                {username: '张三', remarkcont: '123', remarkdate: '2019-04-22', degree: 4},
-                {username: '张三', remarkcont: '123', remarkdate: '2019-04-22', degree: 4},
-                {username: '张三', remarkcont: '123', remarkdate: '2019-04-22', degree: 4}
+                {username: '张三', remarkcont: '123', remarkdate: '2019-04-22', bookscore: 4}
             ]
         };
     },
@@ -118,12 +116,12 @@ export default {
                     url: "/api/addBuycar.php",
                     method: "POST",
                     data: Qs.stringify({
-                    bookname: this.bookdetail.bookname,
-                    price: this.bookdetail.price,
-                    username: this.$store.state.currentUser,
-                    buynum: this.bookdetail.booknum,
-                    buystatus: 2
-                })
+                        bookname: this.bookdetail.bookname,
+                        price: this.bookdetail.price,
+                        username: this.$store.state.currentUser,
+                        buynum: this.bookdetail.booknum,
+                        buystatus: 2
+                    })
                 }).then(resp => {
                     // console.log(resp.data);
                     if(resp.data == 'suc') {
@@ -133,10 +131,44 @@ export default {
             } else {
                 this.$message('请先登录');                
             }
+        },
+        // 发布
+        publish() {
+            axios({
+                url: "/api/publishRemark.php",
+                method: "POST",
+                data: Qs.stringify({
+                    username: this.$store.state.currentUser,
+                    bookname: this.bookdetail.bookname,
+                    bookscore: this.bookscore,
+                    remarkcont: this.remark
+                })
+            }).then(resp => {
+                console.log(resp.data);
+                if (resp.data == "suc") {
+                    this.$message('发布成功！');
+                    this.getRemark();
+                }
+                // this.remarks = resp.data;
+            })
+        },
+        // 获取评论
+        getRemark() {
+            axios({
+                url: "/api/getRemark.php",
+                method: "POST",
+                data: Qs.stringify({
+                    bookname: this.bookdetail.bookname
+                })
+            }).then(resp => {
+                // console.log(resp.data);
+                this.remarks = resp.data;
+            })
         }
     },
     mounted() {
         this.getBook();
+        this.getRemark();
     }
 };
 </script>
@@ -229,11 +261,11 @@ export default {
                 margin: 20px 0;
             }
             .remarkright{
-                width: 120px;
+                width: 160px;
                 margin-top: 20px;
                 font-size: 14px;
                 line-height: 30px;
-                .degree{
+                .bookscore{
                     color: #fb0;
                     font-size: 18px;
                 }

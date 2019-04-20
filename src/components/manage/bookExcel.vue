@@ -22,24 +22,54 @@
                 </el-card>
             </el-col>
         </el-row>
-
-        
-
     </div>
 </template>
 
 <script>
+import axios from "axios";
+import Qs from "qs";
 export default {
     data () {
         return {
-
+            booksale: [],
+            bookscore: [],
+            bookname: []
         }
     },
     mounted(){
         this.drawLine();
         this.drawLine1();
+        this.bookSale();
+        this.bookScore();
     },
     methods: {
+        // 书籍销售情况
+        bookSale() {
+            axios({
+                url: "/api/bookSaleSearch.php",
+                method: "POST"
+            }).then(resp => {
+                // this.tableData = resp.data;
+                // console.log(resp.data);
+                for (let i = 0; i < resp.data.length;i++) {
+                    this.booksale.push(parseInt(resp.data[i].saleval));
+                    this.bookname.push(resp.data[i].bookname);
+                }
+                console.log('booksale:', this.booksale, this.bookname);
+            })
+        },
+        bookScore() {
+            axios({
+                url: "/api/bookSaleSearch.php",
+                method: "POST"
+            }).then(resp => {
+                // this.tableData = resp.data;
+                for (let i = 0; i < resp.data.length;i++) {
+                    this.bookscore.push(parseInt(resp.data[i].bookscore));
+                }
+                console.log('bookscore:', this.bookscore);
+            })
+        },
         drawLine(){
             // 基于准备好的dom，初始化echarts实例
             let myChart = this.$echarts.init(document.getElementById('myEchart'))
@@ -53,15 +83,14 @@ export default {
                         end: 70         // 右边在 70% 的位置。
                     }
                 ],
-               
                 xAxis: {
-                    data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+                    data: this.bookname
                 },
                 yAxis: {},
                 series: [{
                     name: '销量',
                     type: 'bar',
-                    data: [5, 20, 36, 10, 10, 20]
+                    data: this.booksale
                 }]
             });
         },
@@ -84,8 +113,12 @@ export default {
                 ]
             })
         }
-    }
-
+    },
+    watch:{
+        dataArr(val){//监听数据发生改变 刷新图表数据
+            this.drawLine();
+        }
+    },
 }
 </script>
 

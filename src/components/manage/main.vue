@@ -21,7 +21,8 @@
                                 <span>用户管理</span>
                             </template>
                             <el-menu-item index="/manage">用户信息</el-menu-item>                            
-                            <el-menu-item index="/manage/managerinfor">管理员信息</el-menu-item>                            
+                            <el-menu-item index="/manage/managerinfor">管理员信息</el-menu-item>
+                            <el-menu-item index="/manage/bookbuy">用户购书信息</el-menu-item>                                                        
                         </el-submenu>
                         <el-submenu index="2">
                             <template slot="title">
@@ -31,7 +32,7 @@
                             <el-menu-item index="/manage/booksearch">书籍查询</el-menu-item>                            
                             <el-menu-item index="/manage/bookstockin">书籍入库</el-menu-item>                            
                             <el-menu-item index="/manage/bookstockout">书籍出库</el-menu-item>                            
-                            <el-menu-item index="/manage/bookexcel">销售情况</el-menu-item>                            
+                            <!-- <el-menu-item index="/manage/bookexcel">销售情况</el-menu-item>                             -->
                         </el-submenu>
                     </el-menu>
                 </el-aside>
